@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Simone Clothing",
-  description: "Shop the latest from Simone",
+  description: "Bold streetwear meets modern minimalism — Shop Simone",
 };
 
 export default function RootLayout({
@@ -15,14 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-white text-gray-900 antialiased">
+      <body className="bg-cream text-dark antialiased">
         <CartProvider>
           <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <footer className="border-t py-8 text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} Simone Clothing. All rights
-            reserved.
-          </footer>
+          <main>{children}</main>
         </CartProvider>
       </body>
     </html>
