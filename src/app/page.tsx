@@ -135,8 +135,8 @@ export default function Home() {
                 onClick={() => setActiveCategory(cat)}
                 className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] border-2 transition-all duration-300 ${
                   activeCategory === cat
-                    ? "bg-dark text-white border-dark shadow-lg"
-                    : "border-warm/30 text-gray-600 hover:border-dark hover:text-dark"
+                    ? "bg-accent text-dark border-accent shadow-lg"
+                    : "border-warm/30 text-gray-600 hover:border-accent hover:text-dark"
                 }`}
               >
                 {cat}

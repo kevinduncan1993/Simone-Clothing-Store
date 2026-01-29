@@ -39,7 +39,7 @@ export default function ProductCard({ product }: { product: Product }) {
         />
         {/* Category badge */}
         <div className="absolute top-3 left-3">
-          <span className="bg-dark/80 text-warm text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm">
+          <span className="bg-accent text-dark text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
             {product.category}
           </span>
         </div>
@@ -52,8 +52,8 @@ export default function ProductCard({ product }: { product: Product }) {
                 onClick={(e) => { e.stopPropagation(); setSelectedSize(size); }}
                 className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 ${
                   selectedSize === size
-                    ? "bg-accent text-white scale-110"
-                    : "bg-white/90 text-dark hover:bg-accent hover:text-white"
+                    ? "bg-accent text-dark scale-110"
+                    : "bg-warm text-dark hover:bg-accent hover:text-dark"
                 }`}
               >
                 {size}
