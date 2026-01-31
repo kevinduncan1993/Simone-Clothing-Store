@@ -1,11 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { products, categories, collections, testimonials } from "@/lib/products";
+import { useState, useEffect } from "react";
+import { categories, collections, testimonials } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { products as fallbackProducts } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filtered =
     activeCategory === "All"
@@ -279,6 +293,8 @@ export default function Home() {
           <div className="w-full h-px bg-gradient-to-r from-transparent via-warm/20 to-transparent mt-6 mb-4" />
           <p className="text-center text-gray-600 text-xs tracking-wider">
             &copy; {new Date().getFullYear()} Simone Clothing. All rights reserved.
+            <span className="mx-2">·</span>
+            <a href="/admin/login" className="hover:text-warm transition-colors">Store Management</a>
           </p>
         </div>
       </footer>

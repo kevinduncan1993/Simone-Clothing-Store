@@ -86,10 +86,35 @@ export default function CartDrawer({
                 <span className="text-accent">${totalPrice.toFixed(2)}</span>
               </div>
               <button
-                disabled
-                className="mt-4 w-full rounded-full bg-dark py-3.5 text-center text-white text-sm font-bold uppercase tracking-widest opacity-50"
+                onClick={async () => {
+                  try {
+                    const res = await fetch("/api/checkout", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        items: items.map((item) => ({
+                          productId: item.product.id,
+                          name: item.product.name,
+                          price: item.product.price,
+                          size: item.size,
+                          quantity: item.quantity,
+                        })),
+                      }),
+                    });
+                    const data = await res.json();
+                    if (data.url) {
+                      clearCart();
+                      window.location.href = data.url;
+                    } else {
+                      alert("Checkout failed. Please try again.");
+                    }
+                  } catch {
+                    alert("Checkout failed. Please try again.");
+                  }
+                }}
+                className="mt-4 w-full rounded-full bg-dark py-3.5 text-center text-white text-sm font-bold uppercase tracking-widest hover:bg-accent transition-colors"
               >
-                Checkout (Coming Soon)
+                Checkout
               </button>
               <button
                 onClick={clearCart}

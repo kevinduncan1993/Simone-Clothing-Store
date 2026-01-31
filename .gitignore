@@ -1,3 +1,9 @@
 node_modules
 .next
 .env.local
+
+public/uploads/*
+!public/uploads/.gitkeep
+.vercel
+.env*.local
+drizzle
