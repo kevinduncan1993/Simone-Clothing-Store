@@ -9,7 +9,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isSetup, setIsSetup] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,8 +16,7 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const endpoint = isSetup ? "/api/auth/setup" : "/api/auth/login";
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -28,13 +26,6 @@ export default function AdminLoginPage() {
 
       if (!res.ok) {
         setError(data.error || "Something went wrong");
-        return;
-      }
-
-      if (isSetup) {
-        setIsSetup(false);
-        setError("");
-        alert("Admin account created! You can now log in.");
         return;
       }
 
@@ -55,7 +46,7 @@ export default function AdminLoginPage() {
             <span className="text-accent">ONE</span>
           </h1>
           <p className="text-gray-500 text-sm mt-2 uppercase tracking-widest">
-            {isSetup ? "Create Admin Account" : "Admin Login"}
+            Admin Login
           </p>
         </div>
 
@@ -92,15 +83,7 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-dark to-charcoal text-white py-3 rounded-full text-sm font-bold uppercase tracking-widest hover:from-accent hover:to-accent-light transition-all disabled:opacity-50"
           >
-            {loading ? "..." : isSetup ? "Create Account" : "Log In"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => { setIsSetup(!isSetup); setError(""); }}
-            className="w-full text-center text-xs text-gray-400 hover:text-accent transition-colors"
-          >
-            {isSetup ? "Back to Login" : "First time? Create admin account"}
+            {loading ? "..." : "Log In"}
           </button>
         </form>
       </div>
