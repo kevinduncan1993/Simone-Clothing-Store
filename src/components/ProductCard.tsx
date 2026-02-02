@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
@@ -26,8 +27,9 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div
-      className="group rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-white"
+    <Link
+      href={`/products/${product.id}`}
+      className="group rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-white block"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -49,7 +51,7 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.sizes.map((size) => (
               <button
                 key={size}
-                onClick={(e) => { e.stopPropagation(); setSelectedSize(size); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedSize(size); }}
                 className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 ${
                   selectedSize === size
                     ? "bg-accent text-dark scale-110"
@@ -67,12 +69,15 @@ export default function ProductCard({ product }: { product: Product }) {
           <h3 className="font-heading text-xs font-bold uppercase tracking-wider leading-tight">{product.name}</h3>
           <span className="font-heading text-base font-black text-accent whitespace-nowrap">${product.price}</span>
         </div>
+        {product.description && (
+          <p className="text-[11px] text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{product.description}</p>
+        )}
         <div className="flex items-center gap-2 mt-1.5">
           <Stars count={product.rating} />
           <span className="text-[10px] text-gray-400 tracking-wide">({product.reviews})</span>
         </div>
         <button
-          onClick={handleAdd}
+          onClick={(e) => { e.preventDefault(); handleAdd(); }}
           className={`mt-3 w-full py-2.5 text-xs font-bold uppercase tracking-[0.15em] rounded-full transition-all duration-300 ${
             added
               ? "bg-olive text-white"
@@ -82,6 +87,6 @@ export default function ProductCard({ product }: { product: Product }) {
           {added ? "Added!" : "Add to Cart"}
         </button>
       </div>
-    </div>
+    </Link>
   );
 }
