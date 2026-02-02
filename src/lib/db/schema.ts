@@ -32,6 +32,17 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const siteContent = pgTable("site_content", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  key: text("key").notNull().unique(),
+  heading: text("heading").notNull(),
+  body1: text("body1").notNull(),
+  body2: text("body2").notNull(),
+  image: text("image").notNull().default("/images/owner.svg"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type Order = typeof orders.$inferSelect;
+export type SiteContent = typeof siteContent.$inferSelect;

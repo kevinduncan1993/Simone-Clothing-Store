@@ -9,6 +9,12 @@ import ProductCard from "@/components/ProductCard";
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [about, setAbout] = useState({
+    heading: "Who is Simone?",
+    body1: "Simone is more than a brand — it\u2019s a reflection of its founder. Built from a passion for self-expression and a belief that what you wear should speak before you do. Every design is personal, every piece intentional.",
+    body2: "From late-night sketches to a full collection, Simone was born out of the desire to create something real — clothing that carries culture, confidence, and craft in every stitch.",
+    image: "/images/owner.svg",
+  });
 
   useEffect(() => {
     fetch("/api/products")
@@ -16,6 +22,20 @@ export default function Home() {
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setProducts(data);
+        }
+      })
+      .catch(() => {});
+
+    fetch("/api/site-content/about")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && !data.error) {
+          setAbout({
+            heading: data.heading || about.heading,
+            body1: data.body1 || about.body1,
+            body2: data.body2 || about.body2,
+            image: data.image || about.image,
+          });
         }
       })
       .catch(() => {});
@@ -172,20 +192,20 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 flex flex-col md:flex-row items-center gap-12">
           <div className="w-48 h-48 md:w-56 md:h-56 rounded-full bg-gradient-to-br from-warm/30 to-accent/20 overflow-hidden shrink-0 ring-4 ring-warm/20 shadow-2xl">
             <img
-              src="/images/owner.svg"
+              src={about.image}
               alt="Simone — Founder"
               className="h-full w-full object-cover"
             />
           </div>
           <div className="flex-1">
             <h2 className="font-heading text-3xl md:text-4xl font-black uppercase text-white tracking-tight">
-              Who is <span className="text-accent">Simone</span>?
+              {about.heading}
             </h2>
             <p className="text-warm/80 mt-4 max-w-xl leading-relaxed text-lg">
-              Simone is more than a brand — it&apos;s a reflection of its founder. Built from a passion for self-expression and a belief that what you wear should speak before you do. Every design is personal, every piece intentional.
+              {about.body1}
             </p>
             <p className="text-warm/60 mt-3 max-w-xl leading-relaxed">
-              From late-night sketches to a full collection, Simone was born out of the desire to create something real — clothing that carries culture, confidence, and craft in every stitch.
+              {about.body2}
             </p>
             <div className="flex gap-8 mt-8">
               <div className="text-center">

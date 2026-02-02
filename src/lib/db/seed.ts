@@ -112,6 +112,30 @@ async function seed() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS site_content (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      key TEXT NOT NULL UNIQUE,
+      heading TEXT NOT NULL,
+      body1 TEXT NOT NULL,
+      body2 TEXT NOT NULL,
+      image TEXT NOT NULL DEFAULT '/images/owner.svg',
+      updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+    )
+  `;
+
+  await sql`
+    INSERT INTO site_content (key, heading, body1, body2, image)
+    VALUES (
+      'about',
+      'Who is Simone?',
+      'Simone is more than a brand — it''s a reflection of its founder. Built from a passion for self-expression and a belief that what you wear should speak before you do. Every design is personal, every piece intentional.',
+      'From late-night sketches to a full collection, Simone was born out of the desire to create something real — clothing that carries culture, confidence, and craft in every stitch.',
+      '/images/owner.svg'
+    )
+    ON CONFLICT (key) DO NOTHING
+  `;
+
   console.log("Tables created. Seeding products...");
 
   for (const product of seedProducts) {
