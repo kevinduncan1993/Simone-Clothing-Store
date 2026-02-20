@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { requireAdminAuth } from "@/lib/auth";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,6 +19,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
   const { id } = await params;
   try {
     const body = await req.json();
@@ -26,7 +29,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       .set({
         name: body.name,
         price: body.price,
-        image: body.image,
+        image: body.images?.[0] ?? body.image,
+        images: body.images ?? [],
         description: body.description,
         sizes: body.sizes,
         category: body.category,
@@ -48,6 +52,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
   const { id } = await params;
   try {
     await db.delete(products).where(eq(products.id, id));

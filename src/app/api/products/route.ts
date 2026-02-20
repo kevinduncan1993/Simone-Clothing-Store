@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
+import { requireAdminAuth } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -14,12 +15,15 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
   try {
     const body = await req.json();
     const [product] = await db.insert(products).values({
       name: body.name,
       price: body.price,
-      image: body.image || "/images/placeholder.svg",
+      image: body.images?.[0] ?? body.image ?? "/images/placeholder.svg",
+      images: body.images ?? [],
       description: body.description || "",
       sizes: body.sizes || ["S", "M", "L", "XL"],
       category: body.category || "Men",

@@ -9,6 +9,7 @@ interface ProductFormProps {
     name: string;
     price: number;
     image: string;
+    images?: string[];
     description: string;
     sizes: string[];
     category: string;
@@ -26,7 +27,11 @@ export default function ProductForm({ initialData }: ProductFormProps) {
   const [form, setForm] = useState({
     name: initialData?.name || "",
     price: initialData?.price || 0,
-    image: initialData?.image || "/images/placeholder.svg",
+    images: initialData?.images?.length
+      ? initialData.images
+      : initialData?.image && initialData.image !== "/images/placeholder.svg"
+      ? [initialData.image]
+      : [],
     description: initialData?.description || "",
     sizes: initialData?.sizes || ["S", "M", "L", "XL"],
     category: initialData?.category || "Men",
@@ -39,26 +44,42 @@ export default function ProductForm({ initialData }: ProductFormProps) {
   const [error, setError] = useState("");
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+    const newUrls: string[] = [];
 
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (res.ok) {
-        setForm((prev) => ({ ...prev, image: data.url }));
-      } else {
-        setError(data.error || "Upload failed");
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (res.ok) {
+          newUrls.push(data.url);
+        } else {
+          setError(data.error || "Upload failed");
+          break;
+        }
+      }
+      if (newUrls.length > 0) {
+        setForm((prev) => ({ ...prev, images: [...prev.images, ...newUrls] }));
       }
     } catch {
       setError("Upload failed");
     } finally {
       setUploading(false);
+      // Reset input so the same file can be re-selected if needed
+      e.target.value = "";
     }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSizeToggle = (size: string) => {
@@ -82,7 +103,10 @@ export default function ProductForm({ initialData }: ProductFormProps) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          image: form.images[0] ?? "/images/placeholder.svg",
+        }),
       });
 
       if (!res.ok) {
@@ -154,7 +178,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
 
       <div>
         <label className="block text-xs font-bold uppercase tracking-wider mb-1.5">Sizes</label>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {["XS", "S", "M", "L", "XL", "XXL", "One Size"].map((size) => (
             <button
               key={size}
@@ -195,22 +219,57 @@ export default function ProductForm({ initialData }: ProductFormProps) {
         </div>
       </div>
 
+      {/* Multi-image section */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-1.5">Product Image</label>
-        <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
-            <img src={form.image} alt="Preview" className="w-full h-full object-cover" />
+        <label className="block text-xs font-bold uppercase tracking-wider mb-1">Product Images</label>
+        <p className="text-xs text-gray-400 mb-3">(first image is the cover shown in the shop)</p>
+
+        {form.images.length > 0 && (
+          <div className="grid grid-cols-4 gap-2 mb-3">
+            {form.images.map((src, i) => (
+              <div key={i} className="relative group">
+                <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
+                  <img src={src} alt={`Product image ${i + 1}`} className="w-full h-full object-cover" />
+                </div>
+                {i === 0 && (
+                  <span className="absolute bottom-1 left-1 bg-accent text-dark text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded">
+                    Cover
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(i)}
+                  className="absolute top-1 right-1 w-5 h-5 bg-black/70 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Remove image"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
           </div>
-          <div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="text-sm"
-            />
-            {uploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
-          </div>
-        </div>
+        )}
+
+        <label className="inline-flex items-center gap-2 cursor-pointer px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-accent hover:text-accent transition-colors">
+          {uploading ? (
+            <>
+              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              Uploading...
+            </>
+          ) : (
+            <>+ Add Photo</>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageUpload}
+            disabled={uploading}
+            className="hidden"
+          />
+        </label>
       </div>
 
       <div className="flex gap-3 pt-4">

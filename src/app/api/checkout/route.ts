@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SquareClient, SquareEnvironment } from "square";
 import { db } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 const squareClient = new SquareClient({
@@ -59,6 +60,14 @@ export async function POST(req: NextRequest) {
     });
 
     const paymentLink = response.paymentLink;
+
+    // Store Square's order ID so the webhook can match it later
+    if (paymentLink?.orderId) {
+      await db
+        .update(orders)
+        .set({ squarePaymentId: paymentLink.orderId })
+        .where(eq(orders.id, order.id));
+    }
 
     return NextResponse.json({
       url: paymentLink?.url,

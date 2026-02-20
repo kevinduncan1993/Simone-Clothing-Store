@@ -103,7 +103,6 @@ export default function CartDrawer({
                     });
                     const data = await res.json();
                     if (data.url) {
-                      clearCart();
                       window.location.href = data.url;
                     } else {
                       alert("Checkout failed. Please try again.");

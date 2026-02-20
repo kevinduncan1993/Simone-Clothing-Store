@@ -18,6 +18,9 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes?.[0] ?? "");
   const [added, setAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState(product.image);
+
+  const allImages = product.images?.length ? product.images : [product.image];
 
   const handleAdd = () => {
     addItem(product, selectedSize);
@@ -37,12 +40,29 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
         <div className="grid md:grid-cols-2 gap-10">
           {/* Image */}
-          <div className="aspect-[3/4] rounded-xl overflow-hidden bg-gradient-to-br from-cream-dark to-cream shadow-lg">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
+          <div>
+            <div className="aspect-[3/4] rounded-xl overflow-hidden bg-gradient-to-br from-cream-dark to-cream shadow-lg">
+              <img
+                src={activeImage}
+                alt={product.name}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            {allImages.length > 1 && (
+              <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                {allImages.map((src, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(src)}
+                    className={`w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${
+                      activeImage === src ? "border-accent" : "border-transparent hover:border-warm"
+                    }`}
+                  >
+                    <img src={src} alt={`View ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Info */}

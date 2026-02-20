@@ -5,6 +5,7 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   price: real("price").notNull(),
   image: text("image").notNull().default("/images/placeholder.svg"),
+  images: json("images").$type<string[]>().notNull().default([]),
   description: text("description").notNull().default(""),
   sizes: json("sizes").$type<string[]>().notNull().default(["S", "M", "L", "XL"]),
   category: text("category").notNull().default("Men"),
